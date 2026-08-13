@@ -33,5 +33,8 @@ This query starts at the `$outageNode` and traverses *backwards* along any `DEPE
 **Application UI (Empty State):**
 ![UI Start](./screenshots/ui-start.png)
 
+**Application UI (Dropdown Options):**
+![UI Dropdown](./screenshots/ui-dropdown.png)
+
 **Application UI (Outage State):**
 ![UI Outage](./screenshots/ui-outage.png)
