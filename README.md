@@ -2,6 +2,9 @@
 
 A full-stack application built with Next.js and CognoDB (Neo4j) to visualize cascading failure impact in cloud infrastructure.
 
+**🔗 [Live Application Demo](https://cognodb-devops-mapper.vercel.app/)**
+**📹 [Watch the Screen Recording Walkthrough](https://www.loom.com/share/8e68079afd664cfba0db2665d7fd6d58)**
+
 ## Why a Graph Database?
 Relational databases struggle with highly connected, multi-layered data. If a PostgreSQL database goes down, finding every single frontend application that indirectly depends on it (e.g., Frontend -> API Gateway -> Auth Service -> Database) requires complex, recursive SQL `JOIN`s that degrade in performance. 
 
