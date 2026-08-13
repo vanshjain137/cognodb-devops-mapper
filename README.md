@@ -1,36 +1,37 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# DevOps Infrastructure Mapper
 
-## Getting Started
+A full-stack application built with Next.js and CognoDB (Neo4j) to visualize cascading failure impact in cloud infrastructure.
 
-First, run the development server:
+## Why a Graph Database?
+Relational databases struggle with highly connected, multi-layered data. If a PostgreSQL database goes down, finding every single frontend application that indirectly depends on it (e.g., Frontend -> API Gateway -> Auth Service -> Database) requires complex, recursive SQL `JOIN`s that degrade in performance. 
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+A graph database treats these dependencies as first-class citizens. By modeling infrastructure as nodes (`Service`, `Database`, `Cluster`) and connections as relationships (`DEPENDS_ON`, `DEPLOYED_IN`), we can execute a multi-hop traversal in milliseconds using a simple Cypher query.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## The Multi-Hop Query Explained
+When a user selects a node to simulate an outage, the application runs this variable-length path traversal:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+\`\`\`cypher
+MATCH (affected)-[:DEPENDS_ON|DEPLOYED_IN*1..5]->(target {name: $outageNode})
+RETURN DISTINCT affected.name AS name, labels(affected)[0] AS type
+\`\`\`
+This query starts at the `$outageNode` and traverses *backwards* along any `DEPENDS_ON` or `DEPLOYED_IN` relationships for up to 5 hops, finding every downstream component affected by the outage.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Local Setup
+1. Clone the repository and run `npm install`.
+2. Create a `.env` file with your CognoDB credentials:
+   - `NEO4J_URI=bolt+s://...`
+   - `NEO4J_USER=cognodb`
+   - `NEO4J_PASSWORD=...`
+3. Run the seed script to populate the database: `node scripts/seed.js`
+4. Start the development server: `npm run dev`
 
-## Learn More
+## Application Visuals
 
-To learn more about Next.js, take a look at the following resources:
+**Graph Data Model:**
+![Schema Diagram](./schema.png)
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+**Application UI (Empty State):**
+![UI Start](./screenshots/ui-start.png)
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+**Application UI (Outage State):**
+![UI Outage](./screenshots/ui-outage.png)
