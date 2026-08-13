@@ -10,10 +10,10 @@ A graph database treats these dependencies as first-class citizens. By modeling 
 ## The Multi-Hop Query Explained
 When a user selects a node to simulate an outage, the application runs this variable-length path traversal:
 
-\`\`\`cypher
+```cypher
 MATCH (affected)-[:DEPENDS_ON|DEPLOYED_IN*1..5]->(target {name: $outageNode})
 RETURN DISTINCT affected.name AS name, labels(affected)[0] AS type
-\`\`\`
+```
 This query starts at the `$outageNode` and traverses *backwards* along any `DEPENDS_ON` or `DEPLOYED_IN` relationships for up to 5 hops, finding every downstream component affected by the outage.
 
 ## Local Setup
